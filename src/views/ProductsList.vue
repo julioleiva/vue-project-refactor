@@ -1,4 +1,3 @@
-<!-- eslint-disable eqeqeq -->
 <template>
   <div class="product-list">
     <h1>Product List</h1>
@@ -9,7 +8,7 @@
       <div v-for="product in products" :key="product.id">
         <product-card 
           v-bind:product="product"
-          v-on:product-favorite-clicked="toggleProductFavorite(products, product.id)"
+          v-on:product-favorite-clicked="toggleProductFavorite(product.id)"
         />
       </div>
     </div>
@@ -29,9 +28,6 @@ export default {
   created () {
     this.fetchProducts()
   },
-  mounted () {
-    this.fetchProducts()
-  },
   data () {
     return {
       products: [], 
@@ -43,30 +39,22 @@ export default {
     async fetchProducts () {
       try {
         const response = await axios.get(getProductsListEndpoint) 
-        this.products = response.data.slice(0, 5)
+        this.products = response.data.slice(0, 5).map(product => ({
+          ...product,
+          favorite: false // Initialize favorite state
+        }));
       } catch (err) {
-        this.error = 'Failed to load products'
+        this.error = 'Failed to load products';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
-    toggleProductFavorite (products, productSelectedId) {
-      var output = []
-      
-      for (var i = 0; i < products.length; i++) {
-        var productData = products[i]
-
-        output.push(function () {     
-          if (productData.id == String(productSelectedId)) { 
-            productData.favorite = true
-          }
-          
-          return productData
-        })
-      }
-
-      this.products = output
-      return output
+    toggleProductFavorite (productId) {
+      this.products = this.products.map(product =>
+        product.id === productId
+          ? { ...product, favorite: !product.favorite }
+          : product
+      );
     }
   }
 }
