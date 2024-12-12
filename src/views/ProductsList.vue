@@ -1,22 +1,50 @@
 <template>
   <div>
     <!-- Navbar -->
-    <Navbar
-      title="Product List"
-      @logout="logout"
-    />
+    <Navbar title="Product List" @logout="logout" />
 
-    <!-- Product List -->
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-if="error" class="error">{{ error }}</div>
+    <div role="main" aria-labelledby="products-title" class="product-list">
+      <h1 id="products-title" class="sr-only">Product List</h1>
 
-    <div v-if="!loading && !error" class="products">
-      <div v-for="product in products" :key="product.id">
-        <product-card 
-          v-bind:product="product"
-          v-on:product-favorite-clicked="toggleProductFavorite(product.id)"
-        />
+      <div
+        v-if="loading"
+        class="loading"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        Loading...
       </div>
+
+      <div
+        v-if="error"
+        class="error"
+        role="alert"
+        aria-live="assertive"
+      >
+        {{ error }}
+      </div>
+
+      <!-- Lista de Productos -->
+      <div v-if="!loading && !error && products.length > 0" class="products">
+        <div
+          v-for="product in products"
+          :key="product.id"
+          class="product-item"
+          tabindex="0"
+          :aria-label="`Product: ${product.title}, Price: $${product.price}`"
+          @keyup.enter="toggleProductFavorite(product.id)"
+        >
+          <product-card
+            v-bind:product="product"
+            v-on:product-favorite-clicked="toggleProductFavorite(product.id)"
+          />
+        </div>
+      </div>
+
+      <p v-else-if="!loading && !error" class="no-products">
+        No products available.
+      </p>
     </div>
   </div>
 </template>
@@ -49,12 +77,14 @@ export default {
     async fetchProducts() {
       try {
         const response = await axios.get(getProductsListEndpoint);
-        this.products = response.data.slice(0, 5).map(product => ({
+        this.products = response.data.slice(0, 5).map((product) => ({
           ...product,
           favorite: false,
         }));
+        console.log("Fetched products:", this.products);
       } catch (err) {
-        this.error = "Failed to load products";
+        console.error("Error fetching products:", err);
+        this.error = "Failed to load products.";
       } finally {
         this.loading = false;
       }
@@ -100,8 +130,22 @@ export default {
   gap: 20px;
 }
 
-button {
-  font-size: 16px;
-  padding: 8px 16px;
+.product-item {
+  outline: none;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.product-item:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.no-products {
+  font-size: 18px;
+  color: gray;
+  text-align: center;
 }
 </style>
