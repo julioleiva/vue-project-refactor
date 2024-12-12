@@ -1,6 +1,12 @@
 <template>
-  <div class="product-list">
-    <h1>Product List</h1>
+  <div>
+    <!-- Navbar -->
+    <Navbar
+      title="Product List"
+      @logout="logout"
+    />
+
+    <!-- Product List -->
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
 
@@ -13,17 +19,19 @@
       </div>
     </div>
   </div>
-</template> 
+</template>
 
 <script>
-import axios from "axios";
+import Navbar from "../components/NavBar.vue";
 import ProductCard from "../components/ProductCard.vue";
+import { toggleFavorite, clearToken } from "@/helpers/utils";
+import axios from "axios";
 import { getProductsListEndpoint } from "@/helpers/constants";
-import { toggleFavorite } from "@/helpers/utils";
 
 export default {
   name: "ProductsList",
   components: {
+    Navbar,
     ProductCard,
   },
   data() {
@@ -34,6 +42,7 @@ export default {
     };
   },
   created() {
+    this.checkAuthentication();
     this.fetchProducts();
   },
   methods: {
@@ -53,10 +62,19 @@ export default {
     toggleProductFavorite(productId) {
       this.products = toggleFavorite(this.products, productId);
     },
+    logout() {
+      clearToken();
+      this.$router.push("/login");
+    },
+    checkAuthentication() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        this.$router.push("/login");
+      }
+    },
   },
 };
 </script>
-
 
 <style scoped>
 .product-list {
@@ -80,5 +98,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+button {
+  font-size: 16px;
+  padding: 8px 16px;
 }
 </style>
