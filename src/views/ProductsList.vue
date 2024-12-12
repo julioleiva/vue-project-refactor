@@ -3,7 +3,7 @@
     <h1>Product List</h1>
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
-    
+
     <div v-if="!loading && !error" class="products">
       <div v-for="product in products" :key="product.id">
         <product-card 
@@ -16,32 +16,32 @@
 </template> 
 
 <script>
-import axios from 'axios'
-import ProductCard from '../components/ProductCard.vue'
+import axios from 'axios';
+import ProductCard from '../components/ProductCard.vue';
 import { getProductsListEndpoint } from '@/helpers/constants';
 
 export default {
   name: 'ProductsList',
   components: {
-    ProductCard
+    ProductCard,
   },
-  created () {
-    this.fetchProducts()
-  },
-  data () {
+  data() {
     return {
-      products: [], 
+      products: [],
       loading: true,
-      error: null
-    }
+      error: null,
+    };
+  },
+  created() {
+    this.fetchProducts();
   },
   methods: {
-    async fetchProducts () {
+    async fetchProducts() {
       try {
-        const response = await axios.get(getProductsListEndpoint) 
+        const response = await axios.get(getProductsListEndpoint);
         this.products = response.data.slice(0, 5).map(product => ({
           ...product,
-          favorite: false // Initialize favorite state
+          favorite: false,
         }));
       } catch (err) {
         this.error = 'Failed to load products';
@@ -49,15 +49,16 @@ export default {
         this.loading = false;
       }
     },
-    toggleProductFavorite (productId) {
-      this.products = this.products.map(product =>
-        product.id === productId
-          ? { ...product, favorite: !product.favorite }
-          : product
-      );
-    }
-  }
-}
+    toggleProductFavorite(productId) {
+      this.products = this.products.map(product => {
+        if (product && product.id === productId) {
+          return { ...product, favorite: !product.favorite };
+        }
+        return product;
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>

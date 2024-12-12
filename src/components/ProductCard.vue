@@ -1,6 +1,10 @@
 <template>
   <div class="product-item">
-    <span class="icono favorite"></span>
+    <span
+      class="icono favorite"
+      :class="{ selected: product.favorite }"
+      @click="onFavoriteClicked"
+    ></span>
     <img :src="product.image" :alt="product.title" class="product-image" />
     <h3 class="product-title">{{ product.title }}</h3>
     <p class="product-description">{{ product.description }}</p>
@@ -10,19 +14,19 @@
 
 <script>
 export default {
-  name: 'ProductCard',
-  props: ['product'],
-  data () {
-    return {
-
-    }
+  name: "ProductCard",
+  props: {
+    product: {
+      type: Object,
+      required: true,
+    },
   },
   methods: {
-    onFavoriteClicked () {
-      this.$emit('productFavoriteClicked', this.product.id)
-    }
-  }
-}
+    onFavoriteClicked() {
+      this.$emit("product-favorite-clicked", this.product.id);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -61,43 +65,18 @@ export default {
 
 .favorite {
   position: absolute;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   width: 30px;
   height: 30px;
-}
-
-span.icono.favorite.selected::before {
-  background-image: url("../assets/favorite-filled-red.svg");
-}
-
-span.icono.favorite::before {
+  cursor: pointer;
   background-image: url("../assets/favorite-filled-muted.svg");
-}
-
-.favorite:hover {
-  filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-}
-
-.favorite-icon {
-  background-image: url('../assets/favorite-filled-muted.svg');
-}
-
-.favorite-icon.selected {
-  background-image: url('../assets/favorite-filled-red.svg');
-}
-
-span.icono {
-  display: inline-block;
-}
-
-span.icono::before {
-  content: "";
-  width: 2.4rem;
-  height: 2.4rem;
-  display: inline-block;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
-  vertical-align: text-bottom;
+}
+
+.favorite.selected {
+  background-image: url("../assets/favorite-filled-red.svg");
 }
 </style>
