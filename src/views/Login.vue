@@ -37,7 +37,8 @@
 
 <script>
 import axios from "axios";
-import { postLoginEndpoint, tokenStorageName } from "@/helpers/constants";
+import { postLoginEndpoint } from "@/helpers/constants";
+import { validateFields, setToken } from "@/helpers/utils";
 
 export default {
   name: "Login",
@@ -51,6 +52,16 @@ export default {
   },
   methods: {
     async onSignIn() {
+      const errors = validateFields({
+        username: this.username,
+        password: this.password,
+      });
+
+      if (Object.keys(errors).length) {
+        this.error = "Please fill all required fields.";
+        return;
+      }
+
       this.error = null;
       this.loading = true;
       try {
@@ -59,7 +70,7 @@ export default {
           password: this.password,
         });
         const { token } = response.data;
-        localStorage.setItem(tokenStorageName, token);
+        setToken(token); 
         this.$router.push("/");
       } catch (err) {
         this.error = "Invalid credentials. Please try again.";
@@ -70,6 +81,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .form-signin {

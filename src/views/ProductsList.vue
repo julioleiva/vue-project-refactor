@@ -16,12 +16,13 @@
 </template> 
 
 <script>
-import axios from 'axios';
-import ProductCard from '../components/ProductCard.vue';
-import { getProductsListEndpoint } from '@/helpers/constants';
+import axios from "axios";
+import ProductCard from "../components/ProductCard.vue";
+import { getProductsListEndpoint } from "@/helpers/constants";
+import { toggleFavorite } from "@/helpers/utils";
 
 export default {
-  name: 'ProductsList',
+  name: "ProductsList",
   components: {
     ProductCard,
   },
@@ -44,22 +45,18 @@ export default {
           favorite: false,
         }));
       } catch (err) {
-        this.error = 'Failed to load products';
+        this.error = "Failed to load products";
       } finally {
         this.loading = false;
       }
     },
     toggleProductFavorite(productId) {
-      this.products = this.products.map(product => {
-        if (product && product.id === productId) {
-          return { ...product, favorite: !product.favorite };
-        }
-        return product;
-      });
+      this.products = toggleFavorite(this.products, productId);
     },
   },
 };
 </script>
+
 
 <style scoped>
 .product-list {
